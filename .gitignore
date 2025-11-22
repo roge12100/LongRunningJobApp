@@ -1,0 +1,9 @@
+# .NET
+bin/
+obj/
+
+# OS
+.DS_Store
+
+# Rider
+.idea/
