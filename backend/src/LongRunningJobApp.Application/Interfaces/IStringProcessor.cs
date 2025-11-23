@@ -1,7 +1,7 @@
 namespace LongRunningJobApp.Application.Interfaces;
 
 /// <summary>
-/// Service for processing input strings according to business rules
+/// Service contract for processing input strings 
 /// </summary>
 public interface IStringProcessor
 {

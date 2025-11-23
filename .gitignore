@@ -7,3 +7,6 @@ obj/
 
 # Rider
 .idea/
+
+#User
+LongRunningJobApp.sln.DotSettings.user
