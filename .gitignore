@@ -1,6 +1,7 @@
 # .NET
 bin/
 obj/
+logs/
 
 # OS
 .DS_Store
