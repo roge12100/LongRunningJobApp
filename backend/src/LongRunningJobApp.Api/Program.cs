@@ -63,4 +63,14 @@ app.MapControllers();
 // Map SignalR Hub endpoint
 app.MapHub<JobProgressHub>("/hub/job-progress");
 
+// Health check endpoint
+app.MapGet("/health", () => Results.Ok(new 
+    { 
+        status = "healthy",
+        timestamp = DateTime.UtcNow,
+        service = "longjob-service"
+    }))
+    .WithName("HealthCheck")
+    .WithOpenApi();
+
 app.Run();

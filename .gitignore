@@ -11,3 +11,6 @@ logs/
 
 #User
 LongRunningJobApp.sln.DotSettings.user
+
+#Environment
+.env

@@ -48,9 +48,9 @@ WORKDIR /app
 # Copy everything needed to run the app from the "build" stage.
 COPY --from=build /app .
 
-# Switch to a non-privileged user (defined in the base image) that the app will run under.
-# See https://docs.docker.com/go/dockerfile-user-best-practices/
-# and https://github.com/dotnet/dotnet-docker/discussions/4764
+# wget for health checks
+USER root
+RUN apk add --no-cache wget
 USER $APP_UID
 
 ENTRYPOINT ["dotnet", "LongRunningJobApp.Api.dll"]
