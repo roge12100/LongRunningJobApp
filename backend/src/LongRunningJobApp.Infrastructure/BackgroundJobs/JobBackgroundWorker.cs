@@ -37,7 +37,7 @@ public sealed class JobBackgroundWorker : BackgroundService
         {
             await foreach (var job in _jobService.JobQueueReader.ReadAllAsync(stoppingToken))
             {
-                await ProcessJobAsync(job, stoppingToken);
+                Task.Run(() => ProcessJobAsync(job, stoppingToken), stoppingToken);
             }
         }
         catch (OperationCanceledException)
@@ -93,6 +93,7 @@ public sealed class JobBackgroundWorker : BackgroundService
             
             if (!job.IsTerminal())
                 job.Cancel();
+            await Task.Delay(300); // Small delay to ensure client receives CancelJob endpoint response first
             await _notificationService.NotifyAsync(job.Id.ToString(), notifier => notifier.NotifyJobCancelledAsync(job.Id, stoppingToken));
             
         }

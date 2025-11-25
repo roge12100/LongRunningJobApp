@@ -99,10 +99,10 @@ export class AppComponent implements OnInit, OnDestroy {
         this.currentStatus.set(response.status);
         this.startTime.set(new Date());
         this.startTimer();
+        this.showSuccess('Job Created', 'Your job was created and queued for processing.');
 
         try {
           await this.signalRService.connect(response.hubUrl, response.jobId);
-          this.showSuccess('Job Created', 'Your job was created and queued for processing.');
         } catch (err) {
           this.showError('Connection Error', 'Failed to connect to real-time updates');
         }

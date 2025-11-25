@@ -13,12 +13,14 @@ public sealed class JobProgressHub : Hub
     private readonly ILogger<JobProgressHub> _logger;
     private readonly IConnectionsTrackerService _connectionsTracker;
     private readonly INotificationService _notificationService;
+    private readonly IJobService _jobService;
 
-    public JobProgressHub(ILogger<JobProgressHub> logger, IConnectionsTrackerService connectionsTracker, INotificationService notificationService)
+    public JobProgressHub(ILogger<JobProgressHub> logger, IConnectionsTrackerService connectionsTracker, INotificationService notificationService, IJobService jobService)
     {
         _logger = logger;
         _connectionsTracker = connectionsTracker;
         _notificationService = notificationService;
+        _jobService = jobService;
     }
 
     /// <summary>
@@ -43,6 +45,7 @@ public sealed class JobProgressHub : Hub
         _logger.LogInformation("Client {ConnectionId} left job group {JobId}", 
             Context.ConnectionId, jobId);
         
+        await _jobService.CancelJobAsync(Guid.Parse(jobId));
         _notificationService.ClearNotificationQueue(jobId);
         var connectionId = _connectionsTracker.GetConnectionId(jobId);
         _connectionsTracker.RemoveConnection(connectionId ?? "");
@@ -58,8 +61,13 @@ public sealed class JobProgressHub : Hub
     {
         _logger.LogInformation("Client disconnected: {ConnectionId}", Context.ConnectionId);
         var jobId = _connectionsTracker.GetJobIdByConnection(Context.ConnectionId);
+        
+        await _jobService.CancelJobAsync(Guid.Parse(jobId));
+        
         _notificationService.ClearNotificationQueue(jobId ?? "");
+        
         _connectionsTracker.RemoveConnection(Context.ConnectionId);
+        
         await base.OnDisconnectedAsync(exception);
     }
 }
