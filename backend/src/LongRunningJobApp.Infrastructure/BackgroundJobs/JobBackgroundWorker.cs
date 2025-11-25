@@ -14,19 +14,19 @@ public sealed class JobBackgroundWorker : BackgroundService
 {
     private readonly JobService _jobService;
     private readonly IStringProcessor _stringProcessor;
-    private readonly IJobProgressNotifier _progressNotifier;
     private readonly ILogger<JobBackgroundWorker> _logger;
+    private readonly INotificationService _notificationService;
 
     public JobBackgroundWorker(
         JobService jobService,
         IStringProcessor stringProcessor,
-        IJobProgressNotifier progressNotifier,
-        ILogger<JobBackgroundWorker> logger)
+        ILogger<JobBackgroundWorker> logger,
+        INotificationService notificationService)
     {
         _jobService = jobService;
         _stringProcessor = stringProcessor;
-        _progressNotifier = progressNotifier;
         _logger = logger;
+        _notificationService = notificationService;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -62,9 +62,8 @@ public sealed class JobBackgroundWorker : BackgroundService
             var result = _stringProcessor.Process(job.Input);
 
             job.MarkAsProcessing(result.Length);
-            await Task.Delay(1000);
-            await _progressNotifier.NotifyJobStartedAsync(job.Id, jobCts.Token);
-
+            await _notificationService.NotifyAsync(job.Id.ToString(), notifier => notifier.NotifyJobStartedAsync(job.Id, jobCts.Token));
+            
             for (int i = 0; i < result.Length; i++)
             {
                 jobCts.Token.ThrowIfCancellationRequested();
@@ -73,20 +72,19 @@ public sealed class JobBackgroundWorker : BackgroundService
 
                 var delayMs = Random.Shared.Next(1000, 5001);
                 await Task.Delay(delayMs, jobCts.Token);
-
-                await _progressNotifier.SendCharacterAsync(job.Id, character, jobCts.Token);
-
+                
+                await _notificationService.NotifyAsync(job.Id.ToString(), notifier => notifier.SendCharacterAsync(job.Id, character, jobCts.Token));
                 job.UpdateProgress(i + 1);
                 var progressPercentage = job.GetProgressPercentage();
-                await _progressNotifier.UpdateProgressAsync(job.Id, progressPercentage, jobCts.Token);
+                await _notificationService.NotifyAsync(job.Id.ToString(), notifier => notifier.UpdateProgressAsync(job.Id, progressPercentage, jobCts.Token));
 
                 _logger.LogDebug("Job {JobId}: Sent character {Index}/{Total} ({Progress}%)",
                     job.Id, i + 1, result.Length, progressPercentage);
             }
 
             job.Complete(result);
-            await _progressNotifier.NotifyJobCompletedAsync(job.Id, result, jobCts.Token);
-
+            await _notificationService.NotifyAsync(job.Id.ToString(), notifier => notifier.NotifyJobCompletedAsync(job.Id, result, jobCts.Token));
+            
             _logger.LogInformation("Job {JobId} completed successfully", job.Id);
         }
         catch (OperationCanceledException)
@@ -95,8 +93,8 @@ public sealed class JobBackgroundWorker : BackgroundService
             
             if (!job.IsTerminal())
                 job.Cancel();
-            await _progressNotifier.NotifyJobCancelledAsync(job.Id, stoppingToken);
-
+            await _notificationService.NotifyAsync(job.Id.ToString(), notifier => notifier.NotifyJobCancelledAsync(job.Id, stoppingToken));
+            
         }
         catch (Exception ex)
         {
@@ -104,7 +102,8 @@ public sealed class JobBackgroundWorker : BackgroundService
             
             var errorMessage = $"Job processing failed: {ex.Message}";
             job.MarkAsFailed(errorMessage);
-            await _progressNotifier.NotifyJobFailedAsync(job.Id, errorMessage, stoppingToken);
+            await _notificationService.NotifyAsync(job.Id.ToString(), notifier => notifier.NotifyJobFailedAsync(job.Id, errorMessage, stoppingToken));
+            
         }
         finally
         {

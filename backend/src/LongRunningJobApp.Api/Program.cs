@@ -40,6 +40,8 @@ builder.Services.AddCors(options =>
 builder.Services.AddSingleton<JobService>();
 builder.Services.AddSingleton<IJobService>(sp => sp.GetRequiredService<JobService>());
 builder.Services.AddSingleton<IStringProcessor, StringProcessorService>();
+builder.Services.AddSingleton<IConnectionsTrackerService, HubConnectionsTrackerService>();
+builder.Services.AddSingleton<INotificationService, NotificationService>();
 
 // Register Infrastructure Services
 builder.Services.AddSingleton<IJobProgressNotifier, JobProgressNotifier>();
