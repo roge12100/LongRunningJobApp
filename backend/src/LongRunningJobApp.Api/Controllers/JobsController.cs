@@ -27,7 +27,7 @@ public class JobsController : ControllerBase
     [ProducesResponseType(typeof(CreateJobResponse), StatusCodes.Status202Accepted)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<CreateJobResponse>> CreateJob(
-        [FromBody] ProcessJobRequest request,
+        [FromBody] CreateJobRequest request,
         CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(request.Input))

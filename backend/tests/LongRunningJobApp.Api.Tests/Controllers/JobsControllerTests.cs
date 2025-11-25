@@ -40,7 +40,7 @@ public class JobsControllerTests
     public async Task CreateJob_WithValidInput_ShouldReturnAcceptedWithResponse()
     {
         // Arrange
-        var request = new ProcessJobRequest { Input = "Hello, World!" };
+        var request = new CreateJobRequest { Input = "Hello, World!" };
         var jobId = Guid.NewGuid();
         var createdAt = DateTime.UtcNow;
         var job = new JobInfo(jobId, request.Input);
@@ -68,7 +68,7 @@ public class JobsControllerTests
     public async Task CreateJob_WithInvalidInput_ShouldReturnBadRequest(string? invalidInput)
     {
         // Arrange
-        var request = new ProcessJobRequest { Input = invalidInput! };
+        var request = new CreateJobRequest { Input = invalidInput! };
 
         // Act
         var result = await _controller.CreateJob(request, CancellationToken.None);
@@ -81,7 +81,7 @@ public class JobsControllerTests
     public async Task CreateJob_WhenServiceThrowsException_ShouldReturn500()
     {
         // Arrange
-        var request = new ProcessJobRequest { Input = "test" };
+        var request = new CreateJobRequest { Input = "test" };
         _jobServiceMock
             .Setup(x => x.CreateJobAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new Exception("Service error"));
