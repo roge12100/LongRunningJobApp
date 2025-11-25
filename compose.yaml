@@ -7,16 +7,16 @@ services:
     container_name: longjob-service
     environment:
       - ASPNETCORE_ENVIRONMENT=${ENVIRONMENT:-Development}
-      - ASPNETCORE_URLS=http://+:${SERVICE_INTERNAL_PORT:-5000}
+      - ASPNETCORE_URLS=http://+:5000
     expose:
-      - ${SERVICE_INTERNAL_PORT:-5000}
+      - "5000"
     volumes:
       - ./backend/logs:/app/logs
     networks:
       - app-network
     restart: ${RESTART_POLICY:-no}
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "-O", "/dev/null", "http://localhost:${SERVICE_INTERNAL_PORT:-5000}/health"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "-O", "/dev/null", "http://localhost:5000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -30,7 +30,7 @@ services:
     environment:
       - NODE_ENV=${ENVIRONMENT:-Development}
     expose:
-      - ${UI_INTERNAL_PORT:-80}
+      - "3000"
     networks:
       - app-network
     depends_on:
@@ -38,27 +38,27 @@ services:
         condition: service_healthy  # Wait for .NET service to be healthy
     restart: ${RESTART_POLICY:-no}
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:${UI_INTERNAL_PORT:-80}"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/"] 
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 20s
 
-  # Future: Nginx API Gateway 
-  # api:
-  #   build:
-  #     context: ./nginx
-  #   container_name: longjob-api
-  #   ports:
-  #     - "${API_EXTERNAL_PORT:-8080}:${API_INTERNAL_PORT:-80}"
-  #   networks:
-  #     - app-network
-  #   depends_on:
-  #     service:
-  #       condition: service_healthy
-  #     ui:
-  #       condition: service_healthy
-  #   restart: ${RESTART_POLICY:-always}
+  # Nginx API Gateway 
+  api:
+    build:
+      context: ./nginx
+    container_name: longjob-api
+    ports:
+      - "${API_EXTERNAL_PORT:-8080}:80"
+    networks:
+      - app-network
+    depends_on:
+      service:
+        condition: service_healthy
+      ui:
+        condition: service_healthy
+    restart: ${RESTART_POLICY:-always}
 
 networks:
   app-network:
