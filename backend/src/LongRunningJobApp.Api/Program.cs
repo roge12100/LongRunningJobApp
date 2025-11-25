@@ -29,7 +29,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngularClient", policy =>
     {
-        policy.WithOrigins("http://localhost:4200") // Angular local dev server
+        policy.WithOrigins("http://localhost:8080") // Angular local dev server
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials(); 
@@ -55,7 +55,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.UseCors("AllowAngularClient");
 app.UseAuthorization();
 
 app.MapControllers();

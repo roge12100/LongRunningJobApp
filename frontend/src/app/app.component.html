@@ -1,0 +1,44 @@
+<p-toast></p-toast>
+
+<div class="container">
+  <div class="header">
+    <h1>
+      <i class="pi pi-cog" [ngClass]="isJobRunning() ? 'pi-spin' : ''" style="font-size: 1.5rem"></i>
+      {{ title }}
+    </h1>
+    <br>
+    <p class="subtitle">Process long-running jobs with real-time progress updates</p>
+    <br>
+  </div>
+
+  <app-job-input
+    [inputTextValue]="inputText()"
+    (inputTextValueChange)="inputText.set($event)"
+    [disabled]="isJobRunning() || isJobQueued()"
+    [loading]="isJobRunning() || isJobQueued()"
+    [canSubmit]="canStartJob()"
+    (startJob)="onStartJob()"
+    [submitLabel]="getSubmitLabel()">
+  </app-job-input>
+
+  @if (isJobRunning()) {
+    <app-job-progress
+      [status]="currentStatus()"
+      [progress]="progress()"
+      [processedText]="processedText()"
+      [elapsedTime]="elapsedTime()"
+      [canCancel]="canCancelJob()"
+      (cancelJob)="onCancelJob()">
+    </app-job-progress>
+  }
+
+  @if (isJobFinished()) {
+    <app-job-result
+      [status]="currentStatus()"
+      [result]="processedText()"
+      [elapsedTime]="elapsedTime()"
+      [errorMessage]="errorMessage()"
+      (startNewJob)="onStartNewJob()">
+    </app-job-result>
+  }
+</div>

@@ -83,7 +83,7 @@ public class JobsController : ControllerBase
         {
             Success = cancelled,
             Message = cancelled
-                ? "Job cancelled successfully"
+                ? "Job cancellation request accepted"
                 : $"Job cannot be cancelled. Current status: {job.Status}"
         };
 

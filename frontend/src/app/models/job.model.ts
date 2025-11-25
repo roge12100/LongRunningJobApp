@@ -4,7 +4,8 @@ export enum JobStatus {
     Processing = 1,
     Completed = 2,
     Cancelled = 3,
-    Failed = 4
+    Failed = 4,
+    None = 5
 }
 
 // DTOs
@@ -49,18 +50,6 @@ export interface JobFailedMessage {
 
 export interface ProgressUpdatedMessage {
     progressPercentage: number;
-}
-
-// UI State
-export interface JobUIState {
-    status: JobStatus;
-    inputText: string;
-    processedText: string;
-    progress: number;
-    currentJobId: string | null;
-    errorMessage: string | null;
-    startTime: Date | null;
-    endTime: Date | null;
 }
 
 // Utility Functions 

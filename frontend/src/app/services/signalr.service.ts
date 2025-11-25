@@ -96,7 +96,7 @@ export class SignalrService {
   private async joinGroup(jobId: string): Promise<void> {
     if (this.hubConnection) {
       try {
-        await this.hubConnection.invoke('JoinJobGroup', jobId);
+        await this.hubConnection.invoke('JoinJob', jobId);
         console.log('Joined job group:', jobId);
       } catch (err) {
         console.error('Failed to join job group:', err);
@@ -108,7 +108,7 @@ export class SignalrService {
   public async leaveGroup(jobId: string): Promise<void> {
     if (this.hubConnection) {
       try {
-        await this.hubConnection.invoke('LeaveJobGroup', jobId);
+        await this.hubConnection.invoke('LeaveJob', jobId);
         console.log('Left job group:', jobId);
       } catch (err) {
         console.error('Failed to leave job group:', err);

@@ -62,6 +62,7 @@ public sealed class JobBackgroundWorker : BackgroundService
             var result = _stringProcessor.Process(job.Input);
 
             job.MarkAsProcessing(result.Length);
+            await Task.Delay(1000);
             await _progressNotifier.NotifyJobStartedAsync(job.Id, jobCts.Token);
 
             for (int i = 0; i < result.Length; i++)
@@ -93,10 +94,9 @@ public sealed class JobBackgroundWorker : BackgroundService
             _logger.LogInformation("Job {JobId} was cancelled", job.Id);
             
             if (!job.IsTerminal())
-            {
                 job.Cancel();
-                await _progressNotifier.NotifyJobCancelledAsync(job.Id, stoppingToken);
-            }
+            await _progressNotifier.NotifyJobCancelledAsync(job.Id, stoppingToken);
+
         }
         catch (Exception ex)
         {

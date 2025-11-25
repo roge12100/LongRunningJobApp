@@ -17,7 +17,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 
 # Install project dependencies using npm ci (ensures a clean, reproducible install)
-RUN --mount=type=cache,target=/root/.npm npm ci
+RUN --mount=type=cache,target=/root/.npm npm ci --legacy-peer-deps
 
 # Copy the rest of the application source code into the container
 COPY . .
