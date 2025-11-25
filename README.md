@@ -67,6 +67,18 @@ htpasswd -cb nginx/.htpasswd admin 'YourSecurePassword'
 
 That's it! All services will start automatically with proper networking and health checks.
 
+## Testing
+This solution is covered by unit tests. 
+- Backend (.NET API) unit tests can be run with: 
+```bash
+dotnet test ./backend 
+```
+
+- Frontend (Angular) unit tests can be run with:
+```bash
+cd frontend -> ng test
+```
+
 ## Authentication
 
 The nginx gateway implements HTTP Basic Authentication to protect all application routes:

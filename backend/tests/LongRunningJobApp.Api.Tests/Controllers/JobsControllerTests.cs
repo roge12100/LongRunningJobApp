@@ -113,7 +113,7 @@ public class JobsControllerTests
         var response = okResult.Value.Should().BeOfType<CancelJobResponse>().Subject;
         
         response.Success.Should().BeTrue();
-        response.Message.Should().Contain("cancelled successfully");
+        response.Message.Should().Contain("Job cancellation request accepted");
     }
 
     [Fact]
