@@ -1,0 +1,21 @@
+<div 
+  [ngClass]="containerClasses()"
+  [ngStyle]="progressStyles()"
+  role="progressbar"
+  [attr.aria-valuenow]="clampedValue()"
+  [attr.aria-valuemin]="0"
+  [attr.aria-valuemax]="100"
+  [attr.aria-label]="'Progress: ' + percentageText()">
+  
+  <div class="progress-fill">
+    @if (animated()) {
+      <div class="progress-shine"></div>
+    }
+  </div>
+  
+  @if (showPercentage()) {
+    <span class="progress-text" [attr.aria-hidden]="true">
+      {{ percentageText() }}
+    </span>
+  }
+</div>

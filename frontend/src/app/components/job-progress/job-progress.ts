@@ -2,9 +2,9 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
-import { ProgressBarModule } from 'primeng/progressbar';
 import { JobStatus } from '../../models/job.model';
 import { JobStatusHeaderComponent } from '../job-status-header/job-status-header';
+import { CustomProgressBarComponent } from '../custom-progress-bar/custom-progress-bar.component';
 
 @Component({
   selector: 'app-job-progress',
@@ -13,7 +13,7 @@ import { JobStatusHeaderComponent } from '../job-status-header/job-status-header
     CommonModule,
     CardModule,
     ButtonModule,
-    ProgressBarModule,
+    CustomProgressBarComponent,
     JobStatusHeaderComponent
   ],
   template: `
@@ -26,14 +26,9 @@ import { JobStatusHeaderComponent } from '../job-status-header/job-status-header
         <!-- Progress Bar -->
         <div class="mb-3">
           <label class="block mb-2 font-semibold">Progress</label>
-          <p-progressBar 
-            [value]="progress" 
-            [showValue]="true"
-            styleClass="mb-2">
-          </p-progressBar>
+          <app-custom-progress-bar [value]="progress" [showPercentage]="true" [animated]="true" class="mb-2"></app-custom-progress-bar>
           <div class="flex justify-content-between text-sm text-color-secondary">
             <span>Elapsed: {{ elapsedTime }}</span>
-            <span>{{ progress }}%</span>
           </div>
         </div>
 
