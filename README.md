@@ -41,29 +41,31 @@ The application consists of three containerized services orchestrated via Docker
 
 ### Prerequisites
 - Docker & Docker Compose
-- `htpasswd` utility (for generating auth credentials)
 - (Optional) Node.js 20+ and .NET 10 SDK for local development
 
-### Setup Authentication
+### Default Authentication Credentials
 
-Before running the application, create the password file:
+The application comes with a pre-configured `.htpasswd` file for immediate use:
+- **Username:** `admin`
+- **Password:** `admin123`
+
+**Optional - Change Credentials:**
 ```bash
-# Generate .htpasswd file (replace with your credentials)
-htpasswd -cb nginx/.htpasswd admin 'YourSecurePassword'
+# Generate new credentials (requires htpasswd utility)
+htpasswd -cb nginx/.htpasswd yourusername 'YourSecurePassword'
 ```
 
-**Note:** The `.htpasswd` file is gitignored and should never be committed, as well as .env file.
+**Note:** For production deployments, you should generate new credentials before deployment.
 
 ### Running the Application
 
 1. Clone the repository
-2. Create authentication credentials (see above)
-3. Run the application:
+2. Run the application:
 ```bash
    docker-compose up --build
 ```
-4. Access the application at **http://localhost:8080**
-5. Login with the credentials you created
+3. Access the application at **http://localhost:8080**
+4. Login with the default credentials: **admin** / **admin123**
 
 That's it! All services will start automatically with proper networking and health checks.
 
@@ -83,9 +85,10 @@ cd frontend -> ng test
 
 The nginx gateway implements HTTP Basic Authentication to protect all application routes:
 
-- **Default credentials:** Set via `htpasswd` command (see Setup Authentication)
+- **Default credentials:** `admin` / `admin123` (pre-configured for convenience)
 - **Protected routes:** All routes except `/health`
 - **Login prompt:** Browser will display authentication dialog on first access
+- **Security:** Change default credentials before production use
 
 ## Configuration
 
@@ -106,7 +109,7 @@ Internal containers ports (3000, 5000) are hardcoded for simplicity within the D
 ├── nginx/                # Nginx gateway configuration
 │   ├── nginx.conf        # Reverse proxy & auth config
 │   ├── Dockerfile
-│   └── .htpasswd         # Auth credentials (gitignored)
+│   └── .htpasswd         # Pre-configured auth file (admin/admin123)
 ├── docker-compose.yaml   # Service orchestration
 ├── .env                  # Environment configuration
 └── README.md
@@ -114,11 +117,11 @@ Internal containers ports (3000, 5000) are hardcoded for simplicity within the D
 
 ## Usage
 
-1. Access http://localhost:8080 and login
+1. Access http://localhost:8080 and login with `admin` / `admin123`
 2. Enter text in the input field
 3. Click "Start Job" to begin processing
 4. Watch real-time character-by-character progress
 5. Cancel job anytime if needed
 6. View final results or start a new job
 
-**Author:** Rogelio Castillo  
+**Author:** Rogelio Castillo

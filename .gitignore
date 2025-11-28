@@ -14,6 +14,3 @@ LongRunningJobApp.sln.DotSettings.user
 
 #Environment
 .env
-
-# Nginx
-nginx/.htpasswd
