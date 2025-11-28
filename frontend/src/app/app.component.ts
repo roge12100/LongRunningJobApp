@@ -14,6 +14,7 @@ import {
   isActiveStatus,
   isTerminalStatus
 } from './models/job.model';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-root',
@@ -58,6 +59,10 @@ export class AppComponent implements OnInit, OnDestroy {
     isTerminalStatus(this.currentStatus())
   );
 
+  isJobFailed = computed(() => 
+    this.currentStatus() === JobStatus.Failed
+  );
+
   canCancelJob = computed(() => 
     isActiveStatus(this.currentStatus()) && 
     this.currentJobId() !== null
@@ -76,6 +81,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.setupSignalRListeners();
+    this.setupConnectionMonitoring(); 
   }
 
   ngOnDestroy(): void {
@@ -127,13 +133,21 @@ export class AppComponent implements OnInit, OnDestroy {
           this.showError('Error', 'Failed to cancel job: ' + response.message);
         }
       },
-      error: () => this.showError('Error', 'Failed to cancel job')
+      error: (err: HttpErrorResponse) => {
+        if (err.status === 404) {
+          this.showError('Error', 'Job not found');
+        } else {
+          this.showError('Error', 'Failed to cancel job');
+        }
+      } 
     });
   }
 
   onStartNewJob(): void {
+     if(!this.isJobFailed()){
+      this.inputText.set('');
+    }
     this.resetJobState();
-    this.inputText.set('');
   }
 
   // SignalR Event Handlers
@@ -191,6 +205,28 @@ export class AppComponent implements OnInit, OnDestroy {
         this.stopTimer();
         this.showError('Job Failed', msg.errorMessage);
         this.cleanupConnection();
+      })
+    );
+  }
+
+  private setupConnectionMonitoring(): void {
+    this.subscriptions.add(
+      this.signalRService.connectionEvent$.subscribe((event) => {
+        switch (event) {
+          case 'reconnecting':
+            this.showWarning('Connection Lost', 'Attempting to reconnect...');
+            break;
+          case 'reconnected':
+            this.showSuccess('Reconnected', 'Connection restored successfully');
+            break;
+          case 'failed':
+            if (this.isJobRunning()) {
+              this.currentStatus.set(JobStatus.Failed);
+              this.stopTimer();
+              this.showError('Connection Failed', 'Unable to reconnect. Please start a new job.');
+            }
+            break;
+        }
       })
     );
   }

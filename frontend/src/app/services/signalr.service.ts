@@ -10,6 +10,8 @@ import {
   ProgressUpdatedMessage
 } from '../models/job.model';
 
+export type ConnectionEvent = 'reconnecting' | 'reconnected' | 'failed';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -26,6 +28,9 @@ export class SignalrService {
   
   public connectionStatus$ = new BehaviorSubject<boolean>(false);
   public connectionId$ = new BehaviorSubject<string | null>(null);
+  public connectionEvent$ = new Subject<ConnectionEvent>();
+
+  private isJobActive = false;
 
   constructor() {}
 
@@ -34,12 +39,15 @@ export class SignalrService {
    */
   public async connect(hubUrl: string, jobId: string): Promise<void> {
     try {
+      this.isJobActive = true;
+
       this.hubConnection = new HubConnectionBuilder()
-        .withUrl(hubUrl)
+        .withUrl(hubUrl, {timeout: 10000,})        
         .configureLogging(LogLevel.Information)
-        .withAutomaticReconnect()
+        .withAutomaticReconnect([0, 2000, 5000])
         .build();
 
+      this.setupConnectionHandlers();
       this.registerHandlers();
 
       await this.hubConnection.start();
@@ -57,6 +65,30 @@ export class SignalrService {
       this.connectionStatus$.next(false);
       throw err;
     }
+  }
+
+  private setupConnectionHandlers(): void {
+    if (!this.hubConnection) return;
+
+    this.hubConnection.onreconnecting((error) => {
+      console.log('SignalR Reconnecting...', error);
+      this.connectionStatus$.next(false);
+      this.connectionEvent$.next('reconnecting');
+    });
+
+    this.hubConnection.onreconnected((connectionId) => {
+      console.log('SignalR Reconnected', connectionId);
+      this.connectionStatus$.next(true);
+      this.connectionId$.next(connectionId ?? null);
+      this.connectionEvent$.next('reconnected');
+    });
+
+    this.hubConnection.onclose(() => {
+      if (this.isJobActive) { 
+        this.connectionEvent$.next('failed');
+        this.isJobActive = false;
+      }
+    });
   }
 
   private registerHandlers(): void {
